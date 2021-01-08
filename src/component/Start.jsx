@@ -8,7 +8,7 @@ export default function Start() {
             <header className="start">
                 <h1 className='start__title'>Madlibs is a wordy game filled with randomness, created by you. Choose your words wisely</h1>
                 <button className='start__button'>
-                    start
+                    <a className="start__link" href="#story">start</a>
                 </button>
             </header>
 

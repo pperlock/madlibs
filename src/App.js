@@ -9,7 +9,9 @@ class App extends Component {
     data: [],
     audiofile:null,
     answers:[],
-    fullStory:""
+    fullStory:"",
+    suggestions:[],
+    loadedSuggestions:false
 }
 
 componentDidMount(){
@@ -19,20 +21,17 @@ componentDidMount(){
         this.setState({data:item.data})
         console.log(this.state.data)
       })
-
-  this.getExamples("adjective");
-  
 }
 
-getExamples=(type)=>{
+makeSuggestions=(type)=>{
   axios.get(`http://localhost:8080/words/${type}`)
   .then(res=>{
-    console.log(res.data);
+    this.setState({suggestions:res.data, loadedSuggestions:true});
   })
 }
 
 composeStory=(answers, sentences)=>{
-  let fullStory = this.state.data.title + " ";
+  let fullStory = " ";
   for (let i=0; i<answers.length; i++){
     fullStory = fullStory + sentences[i] + answers[i]
     if (i===answers.length-1){
@@ -42,7 +41,6 @@ composeStory=(answers, sentences)=>{
   console.log(fullStory);
 
   this.setState({fullStory:fullStory})
-  console.log(this.state.fullStory);
   return fullStory
 }
 
@@ -63,11 +61,16 @@ readStory=(event,numInputs)=>{
     this.setState({audioFile:res.config.url})
   })
 
+  let storyElement = document.querySelector(".story__output");
+  storyElement.style.display = "flex";
+}
 
+startOver=()=>{
+  window.location.reload(true);
 }
 
 render(){
-  console.log(`render ${this.state.fullStory}`)
+  // console.log(this.state.suggestions)
   return (
     <>
       <Start />
@@ -76,6 +79,10 @@ render(){
       audioFile={this.state.audioFile}
       story={this.state.data}
       fullStory={this.state.fullStory}
+      makeSuggestions={this.makeSuggestions}
+      suggestions={this.state.suggestions}
+      suggestionsMade = {this.state.loadedSuggestions}
+      startOver={this.startOver}
       />
     </>
   );
