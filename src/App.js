@@ -7,22 +7,22 @@ import Start from './component/Start';
 class App extends Component {
   state={
     data: [],
-    audiofile:null
+    audiofile:null,
+    answers:[],
+    fullStory:""
 }
 
 componentDidMount(){
-  axios.get('http://madlibz.herokuapp.com/api/random?maxlength=25')
+  axios.get('http://madlibz.herokuapp.com/api/random?maxlength=15')
       .then(item => {
         
         this.setState({data:item.data})
         console.log(this.state.data)
       })
 
-  this.getExamples("verb");
+  this.getExamples("adjective");
   
 }
-
-/*********Patti ************** */
 
 getExamples=(type)=>{
   axios.get(`http://localhost:8080/words/${type}`)
@@ -31,23 +31,51 @@ getExamples=(type)=>{
   })
 }
 
-readStory=(fullStory)=>{
+composeStory=(answers, sentences)=>{
+  let fullStory = this.state.data.title + " ";
+  for (let i=0; i<answers.length; i++){
+    fullStory = fullStory + sentences[i] + answers[i]
+    if (i===answers.length-1){
+      fullStory = fullStory + sentences[i+1];
+    }
+  }
+  console.log(fullStory);
+
+  this.setState({fullStory:fullStory})
+  console.log(this.state.fullStory);
+  return fullStory
+}
+
+readStory=(event,numInputs)=>{
+  event.preventDefault();
+  let answers=[];
+  for(let i=0; i<numInputs; i++){
+      let inputName=`word${i}`;
+      let input = event.target[inputName].value
+      answers.push(input);
+  }
+  
+  let fullStory=this.composeStory(answers, this.state.data.value);
+ 
   axios.get(`http://api.voicerss.org/?key=57c9f15bc1da49efba258269609e6a3e&hl=en-us&src=${fullStory}`)
+  // axios.get(`http://api.voicerss.org/?key=57c9f15bc1da49efba258269609e6a3e&hl=en-us&src="Hello World"`)
   .then(res=>{
     this.setState({audioFile:res.config.url})
   })
+
+
 }
 
-/*********Patti ************** */
 render(){
+  console.log(`render ${this.state.fullStory}`)
   return (
     <>
       <Start />
       <Game 
-      sentence={this.state.data.title}
-      word={this.state.data.blanks}
       readStory={this.readStory}
       audioFile={this.state.audioFile}
+      story={this.state.data}
+      fullStory={this.state.fullStory}
       />
     </>
   );

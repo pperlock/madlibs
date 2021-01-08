@@ -1,34 +1,47 @@
-import React from 'react';
-import './Start.scss';
-import './Game.scss';
+import React from "react";
+import "./Start.scss";
+import "./Game.scss";
 
-export default function Game(props) {
-    // let wordlist = props.word.map(item => {
-    //     <div>
-    //         {item}
-    //     </div>
-    // })
-    return (
-        <>
-            <h1>{props.sentence}</h1>
+export default function Game({ story, readStory, audioFile, fullStory }) {
+  // let wordlist = props.word.map(item => {
+  //     <div>
+  //         {item}
+  //     </div>
+  // })
+  return (
+      <>
+    <h1 className="story__title">{story.title}</h1>
+    <div className="story">
+      
 
-            <section>
-                {/* need to map the provided api data here for words */}
-                {/* {wordlist} */}
-                <div>
-                    {props.word}
-                </div>
-                <div className="game__submit">
-                    {/* produces an audio file  to be played when the button is clicked */}
-                        {props.audioFile && 
-                        <video autoPlay name="media">
-                            <source src={props.audioFile} type="audio/wav"></source>
-                        </video>    
-                    }
-                    <button className='start__button' onClick={()=>props.readStory(props.sentence)}>Read Me a Story!</button>
+      {story.blanks &&<form className="story__form" onSubmit={(event) => readStory(event, story.blanks.length)}>
+        
+            {story.blanks.map((blank,i) => (
+              <div className="story__input">
+                <label>Place a {blank} Here:</label>
+                <input type="text" name={`word${i}`} placeholder={blank}></input>
+              </div>
+            ))}
 
-                </div>
-            </section>
-        </>
-    )
+          <div className="story__submit">
+
+            <button type="submit"
+              className="start__button story__button"
+            >
+              Read Me a Story!
+            </button>
+          </div>
+        </form>
+      }
+        <div className="story__output">
+            {audioFile && (
+              <video controls autoPlay name="media">
+                <source src={audioFile} type="audio/wav"></source>
+              </video>
+            )}
+            <p className="story__full">{fullStory}</p>
+      </div>
+    </div>
+    </>
+  );
 }
